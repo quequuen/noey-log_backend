@@ -12,11 +12,11 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/posts")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5175")
 public class PostController {
 
     // 프론트엔드의 posts.json 물리 경로
-    private final String JSON_PATH = Paths.get("..", "frontend", "src", "data", "posts.json")
+    private final String JSON_PATH = Paths.get("..", "noey-log_frontend", "src", "data", "posts.json")
             .toAbsolutePath()
             .toString();
 

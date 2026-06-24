@@ -57,16 +57,31 @@ public class PostController {
 
         // 자동 깃허브 푸시 로직
         try {
-            File rootDir = new File(Paths.get("..").toAbsolutePath().toString());
+            File frontendDir = new File(Paths.get("..", "noey-log_frontend").toAbsolutePath().toString());
 
-            new ProcessBuilder("git", "add", ".").directory(rootDir).start().waitFor();
+            // 1. git add .
+            Process addProcess = new ProcessBuilder("git", "add", ".").directory(frontendDir).start();
+            addProcess.waitFor();
 
+            // 2. git commit -m "..."
             String commitMessage = "feat: 새 블로그 글 자동 업로드 (" + LocalDate.now() + ")";
-            new ProcessBuilder("git", "commit", "-m", commitMessage).directory(rootDir).start().waitFor();
+            Process commitProcess = new ProcessBuilder("git", "commit", "-m", commitMessage).directory(frontendDir).start();
+            commitProcess.waitFor();
 
-            new ProcessBuilder("git", "push", "origin", "main").directory(rootDir).start().waitFor();
+            // 3. git push origin main && 에러 로그를 낚아채는 로직 추가
+            Process pushProcess = new ProcessBuilder("git", "push", "origin", "main").directory(frontendDir).start();
 
-            System.out.println("깃허브 자동 커밋 및 푸시 완료");
+            // 깃허브가 뱉은 에러 메시지를 자바 콘솔에 강제로 출력하기
+            java.io.BufferedReader errorReader = new java.io.BufferedReader(new java.io.InputStreamReader(pushProcess.getErrorStream()));
+            String errorLine;
+            System.out.println("Error:");
+            while ((errorLine = errorReader.readLine()) != null) {
+                System.out.println("    Git: " + errorLine);
+            }
+
+            int pushResult = pushProcess.waitFor();
+            System.out.println("Push 최종 결과 코드 (0이면 성공): " + pushResult);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
